@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 // import { useRouter } from "next/router"; (2:15:00)
 // import data from "../../utils/data";
 import Layout from "../../components/Layout";
@@ -16,8 +16,11 @@ import useStyles from "../../utils/styles";
 import Image from "next/image";
 import Product from "../../models/Product";
 import db from "../../utils/db";
+import { Store } from "../../utils/store";
+import axios from "axios";
 
 export default function ProductScreen(props) {
+  const { dispatch } = useContext(Store);
   const { product } = props;
   const classes = useStyles();
   // const router = useRouter(); NOT NEED ANYMORE
@@ -26,6 +29,14 @@ export default function ProductScreen(props) {
   if (!product) {
     return <div>Product Not FOUND!</div>;
   }
+  const addToCartHandler = async () => {
+    const { data } = await axios.get(`/api/products/${product._id}`);
+    if (data.countInStock <= 0) {
+      window.alert("Sorry. Product is out of stock");
+      return;
+    }
+    dispatch({ type: "CART_ADD_ITEM", payload: { ...product, quantity: 1 } });
+  };
   return (
     <Layout title={product.name} description={product.description}>
       <div className={classes.section}>
@@ -93,13 +104,18 @@ export default function ProductScreen(props) {
                   </Grid>
                   <Grid item xs={6}>
                     <Typography>
-                      ${product.countInStock ? "In stock" : "Unavailable"}
+                      {product.countInStock ? "In stock" : "Unavailable"}
                     </Typography>
                   </Grid>
                 </Grid>
               </ListItem>
               <ListItem>
-                <Button fullWidth variant="contained" color="primary">
+                <Button
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  onClick={addToCartHandler}
+                >
                   Add to cart
                 </Button>
               </ListItem>

@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import Head from "next/head";
 import {
   AppBar,
+  Badge,
   Container,
   createTheme,
   CssBaseline,
@@ -18,7 +19,7 @@ import Cookies from "js-cookie";
 
 function Layout({ title, description, children }) {
   const { state, dispatch } = useContext(Store);
-  const { darkMode } = state;
+  const { darkMode, cart } = state;
   const theme = createTheme({
     typography: {
       h1: {
@@ -71,8 +72,16 @@ function Layout({ title, description, children }) {
               checked={darkMode}
               onChange={darkModeChangeHandler}
             ></Switch>
-            <NextLink href="/cart">
-              <Link>Cart</Link>
+            <NextLink href="/cart" passHref>
+              <Link>
+                {cart.cartItems.length > 0 ? (
+                  <Badge color="secondary" badgeContent={cart.cartItems.length}>
+                    Cart
+                  </Badge>
+                ) : (
+                  "Cart"
+                )}
+              </Link>
             </NextLink>
             <NextLink href="/login">
               <Link>login</Link>
